@@ -1,0 +1,14 @@
+{
+  "name": "rss-aggregator-nodejs",
+  "version": "1.0.0",
+  "description": "Un backend Node.js pour un agrégateur de nouvelles RSS.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "rss-parser": "^3.13.0"
+  }
+}
