@@ -22,7 +22,8 @@
         },
       }
     </script>
-<script type="importmap">
+
+<!-- <script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.0",
@@ -30,7 +31,8 @@
     "react/": "https://aistudiocdn.com/react@^19.2.0/"
   }
 }
-</script>
+</script> -->
+
 </head>
 <body class="bg-base-100 text-gray-200 font-sans">
     <main class="container mx-auto p-4 md:p-8">
@@ -46,11 +48,18 @@
         <div class="bg-base-200 rounded-lg p-4 mb-8 sticky top-4 z-10 shadow-lg border border-base-300">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                 <div class="flex-grow">
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Language</label>
+                    <div id="language-controls" class="flex flex-wrap gap-2">
+                        <!-- Les boutons de langue seront insérés ici par JS -->
+                    </div>
+
                     <label class="block text-sm font-medium text-gray-400 mb-2">Catégorie</label>
                     <div id="category-controls" class="flex flex-wrap gap-2">
                         <!-- Les boutons de catégorie seront insérés ici par JS -->
                     </div>
+
                 </div>
+
                 <div class="md:w-1/3">
                     <label for="article-count" class="block text-sm font-medium text-gray-400 mb-2">
                         Nombre d'articles: <span id="article-count-label" class="font-bold text-accent">10</span>
@@ -77,6 +86,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             // --- STATE ---
             const state = {
+                selectedLanguage: 'EN',
                 selectedCategory: 'Technologie',
                 articleCount: 10,
                 isLoading: true,
@@ -84,9 +94,11 @@
                 newsItems: [],
             };
 
-            const CATEGORIES = ['Technologie', 'Politique', 'Science', 'Affaires'];
+            const LANGUAGES=['EN','FR','AR']
+            const CATEGORIES = ['Technologie', 'Politique', 'Science', 'Affaires','Culture','Divertissement','Sports'];
 
             // --- DOM Elements ---
+            const languageControls = document.getElementById('language-controls');
             const categoryControls = document.getElementById('category-controls');
             const articleCountSlider = document.getElementById('article-count');
             const articleCountLabel = document.getElementById('article-count-label');
@@ -132,6 +144,25 @@
 
             // --- RENDER FUNCTIONS ---
             function renderControls() {
+                languageControls.innerHTML = '';
+                LANGUAGES.forEach(category => {
+                    const button = document.createElement('button');
+                    button.textContent = category;
+                    button.className = `px-4 py-2 text-sm font-semibold rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-base-200 focus:ring-accent ${
+                        state.selectedLanguage === category
+                            ? 'bg-accent text-white shadow-md'
+                            : 'bg-base-300 text-gray-300 hover:bg-gray-600'
+                    }`;
+                    button.addEventListener('click', () => {
+                        state.selectedLanguage = category;
+                        renderControls();
+                        fetchNews();
+                    });
+                    languageControls.appendChild(button);
+                });
+                
+                
+                ///////
                 categoryControls.innerHTML = '';
                 CATEGORIES.forEach(category => {
                     const button = document.createElement('button');
@@ -148,6 +179,7 @@
                     });
                     categoryControls.appendChild(button);
                 });
+
             }
 
             function render() {
@@ -227,7 +259,8 @@
                 render();
 
                 try {
-                    const response = await fetch(`/rss?category=${encodeURIComponent(state.selectedCategory)}&count=${state.articleCount}`);
+                    // const lang="en"
+                    const response = await fetch(`/rss?category=${encodeURIComponent(state.selectedCategory)}&count=${state.articleCount}&lang=${state.selectedLanguage}`);
                     if (!response.ok) {
                         const errData = await response.json();
                         throw new Error(errData.error || `Erreur: ${response.statusText}`);
